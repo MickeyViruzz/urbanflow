@@ -8,6 +8,19 @@ The emphasis is on a traceable end-to-end data workflow: every record can be tra
 source, every collection attempt is logged, synthetic demonstration data is clearly separated from
 live data, and all dashboard values are computed from database records.
 
+## Live deployment
+
+| Resource | URL |
+| --- | --- |
+| Web application | https://urbanflow-web-rdkv.onrender.com |
+| API documentation | https://urbanflow-api-0vv7.onrender.com/docs |
+| Repository | https://github.com/MickeyViruzz/urbanflow |
+
+Hosted on Render from the `render.yaml` blueprint: a static site for the React build, a Python web
+service for FastAPI, and a PostgreSQL 16 database. The database is seeded with the labelled demo
+dataset on first boot. Free instances sleep after 15 minutes of inactivity, so the first request can
+take up to a minute to wake.
+
 ## Screenshots
 
 ![UrbanFlow overview](docs/screenshots/overview.png)
