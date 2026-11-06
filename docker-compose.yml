@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: urbanflow-postgres
+    environment:
+      POSTGRES_DB: urbanflow
+      POSTGRES_USER: urbanflow
+      POSTGRES_PASSWORD: urbanflow
+    ports:
+      - "5433:5432"
+    volumes:
+      - urbanflow_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U urbanflow -d urbanflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  urbanflow_pgdata:

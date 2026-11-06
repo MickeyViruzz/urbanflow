@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-ink;
+    min-width: 320px;
+  }
+
+  ::selection {
+    background: #dbe7ff;
+    color: #171a1f;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.45;
+    cursor: pointer;
+  }
+}
+
+.leaflet-container {
+  background: #eef1f4;
+  font-family: inherit;
+  font-size: 12px;
+  z-index: 0;
+}
+
+.leaflet-tooltip.urbanflow-tooltip {
+  padding: 7px 9px;
+  border: 1px solid #e5e7eb;
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+}
+
+.leaflet-tooltip-top.urbanflow-tooltip::before {
+  border-top-color: #ffffff;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px;
+  color: #667085;
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+
+.leaflet-bar a {
+  color: #344054;
+}
+
+/* Thin, neutral scrollbars for the detail drawer and data panels. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d0d5dd transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #d0d5dd;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

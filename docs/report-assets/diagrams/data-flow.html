@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #ffffff; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #171A1F; }
+  .canvas { width: 1600px; height: 900px; padding: 52px 64px 38px; }
+  .eyebrow { color: #1D4ED8; font-size: 19px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { margin: 9px 0 5px; font-size: 42px; letter-spacing: -.025em; }
+  .subtitle { color: #475467; font-size: 21px; line-height: 1.4; max-width: 1300px; }
+  .pipeline { display: flex; align-items: stretch; gap: 8px; margin-top: 46px; height: 390px; }
+  .step { flex: 1; border: 1.5px solid #D0D5DD; border-radius: 12px; background: #FBFCFD; padding: 18px 15px; position: relative; }
+  .step.dark { background: #171A1F; border-color: #171A1F; color: #ffffff; }
+  .step.blue { border-color: #B2DDFF; background: #F5F8FF; }
+  .kicker { font-size: 14px; letter-spacing: .11em; text-transform: uppercase; font-weight: 700; color: #1D4ED8; }
+  .step.dark .kicker { color: #8FB3FF; }
+  h2 { margin: 8px 0 7px; font-size: 25px; line-height: 1.15; letter-spacing: -.01em; }
+  p { margin: 0; color: #475467; font-size: 17px; line-height: 1.4; }
+  .step.dark p { color: #C9D2DE; }
+  .list { margin-top: 11px; color: #475467; font-size: 15px; line-height: 1.55; }
+  .list span { display: block; }
+  .list b { color: #344054; }
+  .step.dark .list { color: #C9D2DE; }
+  .arrow { width: 28px; flex: 0 0 28px; display: flex; align-items: center; justify-content: center; color: #98A2B3; font-size: 31px; }
+  .callouts { display: flex; gap: 16px; margin-top: 30px; }
+  .callout { flex: 1; border-left: 3px solid #1D4ED8; background: #F8FAFC; padding: 13px 16px; }
+  .callout strong { display: block; font-size: 17px; margin-bottom: 4px; }
+  .callout span { color: #475467; font-size: 15px; line-height: 1.45; }
+  .band { display: flex; justify-content: space-between; align-items: center; margin-top: 29px; border-top: 1px solid #E4E7EC; padding-top: 16px; color: #667085; font-size: 15px; }
+  .band b { color: #344054; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="eyebrow">UrbanFlow · Data pipeline</div>
+  <h1>From public record to traceable database row</h1>
+  <div class="subtitle">The ETL pipeline is intentionally sequential and observable. Every stage can be demonstrated from the CLI or the admin refresh endpoint.</div>
+
+  <div class="pipeline">
+    <div class="step">
+      <div class="kicker">01 · Extract</div>
+      <h2>Public data</h2>
+      <p>Requests + BeautifulSoup for listings; JSON APIs for weather and OSM.</p>
+      <div class="list"><span><b>Open-Meteo</b> archive + forecast</span><span><b>Overpass</b> roadworks</span><span><b>Traffic Police</b> notices</span><span><b>Sample</b> labelled demo set</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step">
+      <div class="kicker">02 · Clean</div>
+      <h2>Normalise</h2>
+      <p>Remove markup, collapse whitespace and parse IST dates.</p>
+      <div class="list"><span><b>Text</b> strip HTML / boilerplate</span><span><b>Dates</b> ISO, numeric and text</span><span><b>Missing values</b> handled explicitly</span><span><b>Coordinates</b> Mumbai bounds check</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step blue">
+      <div class="kicker">03 · Enrich</div>
+      <h2>Classify &amp; locate</h2>
+      <p>TF-IDF + linear SVM with transparent rule guardrails.</p>
+      <div class="list"><span><b>Category</b> 7 incident classes</span><span><b>Location</b> Mumbai gazetteer</span><span><b>Summary</b> extractive, deterministic</span><span><b>Provenance</b> method + confidence</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step">
+      <div class="kicker">04 · Protect</div>
+      <h2>Validate &amp; dedupe</h2>
+      <p>Records that fail validation are counted as rejected; no silent loss.</p>
+      <div class="list"><span><b>Required</b> title, description, category</span><span><b>Fingerprint</b> SHA-256 source + identity</span><span><b>Hash</b> detects changed content</span><span><b>Rejected</b> written to run log</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step dark">
+      <div class="kicker">05 · Store</div>
+      <h2>PostgreSQL</h2>
+      <p>Source attribution, constraints and indexes are retained with every row.</p>
+      <div class="list"><span>incidents · weather_observations</span><span>data_sources · collection_logs</span><span>analytics_events</span><span>FKs · CHECKs · unique fingerprints</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step">
+      <div class="kicker">06 · Serve</div>
+      <h2>API &amp; interface</h2>
+      <p>FastAPI aggregates database records; React renders the operational and analytical views.</p>
+      <div class="list"><span><b>Dashboard</b> database-driven KPIs</span><span><b>Analytics</b> daily / weekly / monthly</span><span><b>Route</b> corridor matching</span><span><b>Pipeline</b> live source health</span></div>
+    </div>
+  </div>
+
+  <div class="callouts">
+    <div class="callout"><strong>Idempotent collection</strong><span>Stable fingerprints and external IDs prevent duplicate inserts. Re-collected changed records are updates, counted separately.</span></div>
+    <div class="callout"><strong>Observable failures</strong><span>Source failures, rejected rows and duplicate counts are stored in <b>collection_logs</b>. Empty or failed runs are not replaced with fabricated data.</span></div>
+    <div class="callout"><strong>Defensible provenance</strong><span>Every row keeps its source, source URL, origin, raw payload and classification method for inspection during evaluation.</span></div>
+  </div>
+
+  <div class="band"><span><b>Flow:</b> source → extract → normalise → classify → locate → validate → fingerprint → load → log</span><span>UrbanFlow · Data Engineering Mini Project</span></div>
+</div>
+</body>
+</html>

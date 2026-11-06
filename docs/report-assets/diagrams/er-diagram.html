@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #171A1F; }
+  .canvas { width: 1600px; height: 1050px; padding: 48px 60px 30px; position: relative; }
+  .eyebrow { color: #1D4ED8; font-size: 18px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { margin: 8px 0 4px; font-size: 39px; letter-spacing: -.025em; }
+  .subtitle { color: #475467; font-size: 19px; line-height: 1.4; }
+  .diagram { position: relative; height: 775px; margin-top: 12px; }
+  svg.relationships { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .entity { position: absolute; width: 360px; border: 1.5px solid #D0D5DD; border-radius: 10px; background: #fff; overflow: hidden; z-index: 2; box-shadow: 0 2px 5px rgba(16,24,40,.04); }
+  .entity.core { border-color: #B2DDFF; }
+  .entity-title { padding: 10px 14px; background: #F5F8FF; border-bottom: 1px solid #D0D5DD; color: #175CD3; font-size: 20px; font-weight: 700; font-family: "SFMono-Regular", Consolas, monospace; }
+  .entity:not(.core) .entity-title { background: #F9FAFB; color: #344054; }
+  .fields { padding: 8px 14px 10px; }
+  .field { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; font-size: 16px; line-height: 1.3; border-bottom: 1px solid #F2F4F7; }
+  .field:last-child { border: 0; }
+  .field code { font-family: "SFMono-Regular", Consolas, monospace; color: #344054; font-size: 15px; }
+  .field span { color: #98A2B3; font-size: 13px; text-align: right; }
+  .badge { display: inline-block; margin-left: 6px; border-radius: 999px; border: 1px solid #E4E7EC; background: #fff; padding: 1px 7px; font-size: 11px; color: #667085; vertical-align: 2px; }
+  #sources { left: 20px; top: 280px; }
+  #incidents { left: 590px; top: 85px; }
+  #weather { left: 1160px; top: 260px; }
+  #logs { left: 20px; top: 655px; }
+  #analytics { left: 1160px; top: 645px; }
+  .rel-label { position: absolute; z-index: 3; background: #ffffff; padding: 2px 6px; color: #667085; font-size: 13px; border: 1px solid #E4E7EC; border-radius: 4px; }
+  .note { position: absolute; left: 570px; bottom: 2px; color: #667085; font-size: 14px; }
+  .callout { position: absolute; left: 550px; top: 640px; width: 480px; border-left: 3px solid #1D4ED8; background: #F8FAFC; padding: 10px 14px; color: #475467; font-size: 14px; line-height: 1.45; z-index: 3; }
+  .callout b { color: #171A1F; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="eyebrow">UrbanFlow · Database design</div>
+  <h1>Entity–relationship overview</h1>
+  <div class="subtitle">Five PostgreSQL tables retain incident facts, weather context, source attribution, collection audit history and privacy-conscious usage events.</div>
+
+  <div class="diagram">
+    <svg class="relationships" viewBox="0 0 1600 775" preserveAspectRatio="none">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#98A2B3"></path>
+        </marker>
+      </defs>
+      <path d="M 380 410 H 450 V 222 H 590" fill="none" stroke="#98A2B3" stroke-width="2" marker-end="url(#arrow)"></path>
+      <path d="M 200 540 V 648" fill="none" stroke="#98A2B3" stroke-width="2" marker-end="url(#arrow)"></path>
+      <path d="M 380 430 H 1160" fill="none" stroke="#98A2B3" stroke-width="2" marker-end="url(#arrow)"></path>
+      <path d="M 1520 620 V 585" fill="none" stroke="#98A2B3" stroke-width="2" stroke-dasharray="5 5" opacity="0"></path>
+    </svg>
+
+    <div id="sources" class="entity">
+      <div class="entity-title">data_sources <span class="badge">attribution</span></div>
+      <div class="fields">
+        <div class="field"><code>id</code><span>PK</span></div>
+        <div class="field"><code>slug</code><span>unique</span></div>
+        <div class="field"><code>name</code><span>source label</span></div>
+        <div class="field"><code>source_type</code><span>API / scraper / sample</span></div>
+        <div class="field"><code>base_url</code><span>original source</span></div>
+        <div class="field"><code>licence_note</code><span>attribution</span></div>
+      </div>
+    </div>
+
+    <div id="incidents" class="entity core">
+      <div class="entity-title">incidents <span class="badge">core fact table</span></div>
+      <div class="fields">
+        <div class="field"><code>id</code><span>PK</span></div>
+        <div class="field"><code>source_id</code><span>FK → data_sources</span></div>
+        <div class="field"><code>external_id</code><span>source identity</span></div>
+        <div class="field"><code>title / description</code><span>text</span></div>
+        <div class="field"><code>category / status</code><span>constrained</span></div>
+        <div class="field"><code>location_name</code><span>affected location</span></div>
+        <div class="field"><code>latitude, longitude</code><span>approximate</span></div>
+        <div class="field"><code>location_precision</code><span>locality / segment</span></div>
+        <div class="field"><code>start_time / end_time</code><span>timestamptz</span></div>
+        <div class="field"><code>source_url / origin</code><span>traceability</span></div>
+        <div class="field"><code>fingerprint</code><span>unique, SHA-256</span></div>
+        <div class="field"><code>content_hash</code><span>change detection</span></div>
+        <div class="field"><code>raw_payload</code><span>JSON provenance</span></div>
+      </div>
+    </div>
+
+    <div id="weather" class="entity">
+      <div class="entity-title">weather_observations</div>
+      <div class="fields">
+        <div class="field"><code>id</code><span>PK</span></div>
+        <div class="field"><code>source_id</code><span>FK → data_sources</span></div>
+        <div class="field"><code>observed_at</code><span>daily timestamp</span></div>
+        <div class="field"><code>kind</code><span>observed / forecast</span></div>
+        <div class="field"><code>temperature_c</code><span>float</span></div>
+        <div class="field"><code>precipitation_mm</code><span>float</span></div>
+        <div class="field"><code>probability</code><span>forecast only</span></div>
+        <div class="field"><code>condition / code</code><span>weather label</span></div>
+        <div class="field"><code>origin</code><span>live / demo</span></div>
+      </div>
+    </div>
+
+    <div id="logs" class="entity">
+      <div class="entity-title">collection_logs <span class="badge">audit trail</span></div>
+      <div class="fields">
+        <div class="field"><code>id</code><span>PK</span></div>
+        <div class="field"><code>source_id</code><span>FK → data_sources</span></div>
+        <div class="field"><code>started_at / finished_at</code><span>timing</span></div>
+        <div class="field"><code>status</code><span>success / failed</span></div>
+        <div class="field"><code>fetched / inserted</code><span>counts</span></div>
+        <div class="field"><code>duplicates / rejected</code><span>quality counts</span></div>
+      </div>
+    </div>
+
+    <div id="analytics" class="entity">
+      <div class="entity-title">analytics_events <span class="badge">first party</span></div>
+      <div class="fields">
+        <div class="field"><code>id</code><span>PK (bigint)</span></div>
+        <div class="field"><code>event_type</code><span>allow-listed</span></div>
+        <div class="field"><code>page_path</code><span>route</span></div>
+        <div class="field"><code>metadata</code><span>JSON, bounded</span></div>
+        <div class="field"><code>session_hash</code><span>one-way hash</span></div>
+        <div class="field"><code>created_at</code><span>timestamp</span></div>
+      </div>
+    </div>
+
+    <div class="rel-label" style="left: 430px; top: 190px;">1 ── N</div>
+    <div class="rel-label" style="left: 430px; top: 396px;">1 ── N</div>
+    <div class="rel-label" style="left: 220px; top: 574px;">1 ── N</div>
+    <div class="callout"><b>Integrity choices.</b> Primary keys, source foreign keys, unique fingerprints, category/status checks and indexes keep ingestion repeatable. <b>analytics_events</b> is intentionally independent of incident data; it carries no IP address, user agent or cookie.</div>
+    <div class="note">Detailed field definitions are presented in Table 2 of the report.</div>
+  </div>
+</div>
+</body>
+</html>

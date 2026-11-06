@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #171A1F; }
+  .canvas { width: 1600px; height: 1000px; padding: 54px 64px 40px; background: #ffffff; }
+  .eyebrow { color: #1D4ED8; font-size: 19px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { margin: 9px 0 5px; font-size: 42px; line-height: 1.08; letter-spacing: -.025em; }
+  .subtitle { color: #475467; font-size: 21px; line-height: 1.4; max-width: 1250px; }
+  .flow { display: flex; align-items: stretch; gap: 13px; margin-top: 28px; height: 665px; }
+  .arrow { width: 26px; display: flex; align-items: center; justify-content: center; color: #98A2B3; font-size: 34px; flex: 0 0 26px; }
+  .stage { flex: 1; border: 1.5px solid #D0D5DD; border-radius: 12px; background: #FBFCFD; padding: 16px 14px; }
+  .stage-head { display: flex; align-items: center; gap: 9px; border-bottom: 1px solid #E4E7EC; padding-bottom: 10px; margin-bottom: 12px; }
+  .num { display: inline-flex; align-items: center; justify-content: center; width: 31px; height: 31px; border-radius: 7px; background: #EEF3FF; color: #1D4ED8; font-size: 16px; font-weight: 700; }
+  .stage-title { font-size: 16px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: #344054; }
+  .node { border: 1px solid #E4E7EC; border-radius: 8px; background: #ffffff; padding: 10px 11px; margin-bottom: 9px; }
+  .node strong { display: block; color: #171A1F; font-size: 17px; line-height: 1.25; }
+  .node span { display: block; margin-top: 3px; color: #667085; font-size: 14px; line-height: 1.3; }
+  .node.accent { border-color: #B2DDFF; background: #F5F8FF; }
+  .step { display: flex; gap: 9px; padding: 7px 0; border-bottom: 1px dashed #E4E7EC; font-size: 16px; line-height: 1.25; color: #344054; }
+  .step:last-child { border-bottom: 0; }
+  .step b { color: #1D4ED8; font-size: 14px; padding-top: 2px; }
+  .note { margin-top: 10px; border-radius: 7px; background: #F8FAFC; border: 1px solid #E4E7EC; padding: 8px 10px; font-size: 13px; color: #667085; line-height: 1.35; }
+  .table-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #EDF0F3; padding: 9px 1px; font-size: 15px; color: #344054; }
+  .table-row:last-child { border: 0; }
+  .table-row code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 14px; color: #175CD3; }
+  .pill { display: inline-block; border: 1px solid #E4E7EC; border-radius: 999px; background: #fff; padding: 3px 8px; font-size: 12px; color: #475467; }
+  .bottom { margin-top: 20px; display: flex; gap: 15px; }
+  .bottom-item { flex: 1; border-top: 2px solid #1D4ED8; padding-top: 9px; font-size: 15px; line-height: 1.4; color: #475467; }
+  .bottom-item b { color: #171A1F; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="eyebrow">UrbanFlow · Data Engineering Mini Project</div>
+  <h1>System architecture</h1>
+  <div class="subtitle">Public, attributed data sources flow through a reproducible Python ETL pipeline into PostgreSQL and are exposed through a typed FastAPI service to the analytical web interface.</div>
+
+  <div class="flow">
+    <div class="stage">
+      <div class="stage-head"><span class="num">01</span><span class="stage-title">Public sources</span></div>
+      <div class="node accent"><strong>Open-Meteo</strong><span>Weather archive + forecast API · CC BY 4.0</span></div>
+      <div class="node accent"><strong>OpenStreetMap</strong><span>Overpass construction ways · ODbL</span></div>
+      <div class="node"><strong>Mumbai Traffic Police</strong><span>Public notices · robots-aware BeautifulSoup parser</span></div>
+      <div class="node"><strong>Demonstration dataset</strong><span>Synthetic records · origin = demo · clearly labelled</span></div>
+      <div class="note">No restricted source is bypassed. Failed collection is logged; records are never invented.</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <div class="stage-head"><span class="num">02</span><span class="stage-title">Python ETL</span></div>
+      <div class="step"><b>01</b><span>Extract with Requests, BeautifulSoup and public APIs</span></div>
+      <div class="step"><b>02</b><span>Clean HTML, normalise dates and text</span></div>
+      <div class="step"><b>03</b><span>Classify category; extract Mumbai location; summarise</span></div>
+      <div class="step"><b>04</b><span>Validate fields, Mumbai coordinates and source URLs</span></div>
+      <div class="step"><b>05</b><span>Deduplicate with stable SHA-256 fingerprints</span></div>
+      <div class="step"><b>06</b><span>Load records and write a collection log per source</span></div>
+      <div class="note">Re-running a source updates changed records and counts duplicates instead of inserting them again.</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <div class="stage-head"><span class="num">03</span><span class="stage-title">PostgreSQL 16</span></div>
+      <div class="table-row"><code>incidents</code><span class="pill">provenance</span></div>
+      <div class="table-row"><code>weather_observations</code><span class="pill">daily</span></div>
+      <div class="table-row"><code>data_sources</code><span class="pill">attribution</span></div>
+      <div class="table-row"><code>collection_logs</code><span class="pill">audit</span></div>
+      <div class="table-row"><code>analytics_events</code><span class="pill">first-party</span></div>
+      <div class="note">Foreign keys, indexes, unique fingerprints and status/category constraints preserve consistency. Source URLs and origin are retained.</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <div class="stage-head"><span class="num">04</span><span class="stage-title">FastAPI</span></div>
+      <div class="node"><strong>Read APIs</strong><span>Dashboard · incidents · metadata · analytics · sources</span></div>
+      <div class="node"><strong>Route analysis</strong><span>Geocode → OSRM route → corridor matching</span></div>
+      <div class="node"><strong>First-party events</strong><span>Page views, searches, map use and feature usage</span></div>
+      <div class="node"><strong>Admin refresh</strong><span>Token-protected background ETL trigger</span></div>
+      <div class="note">Aggregations are executed against stored records. External failures return meaningful API errors.</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <div class="stage-head"><span class="num">05</span><span class="stage-title">React + TypeScript</span></div>
+      <div class="node"><strong>Overview &amp; map</strong><span>KPIs, recent activity, Leaflet/OpenStreetMap markers</span></div>
+      <div class="node"><strong>Disruptions &amp; analytics</strong><span>Filterable records and Recharts visualisations</span></div>
+      <div class="node"><strong>Route checker</strong><span>Route geometry, 350 m corridor and hazards</span></div>
+      <div class="node"><strong>Pipeline &amp; platform analytics</strong><span>Source health, run history, privacy-conscious usage</span></div>
+      <div class="note">Tailwind design system · responsive desktop/tablet/mobile layouts · explicit loading, empty and error states.</div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="bottom-item"><b>Request-time services:</b> Nominatim geocoding and OSRM routing. OSRM duration is a free-flow estimate, not live traffic.</div>
+    <div class="bottom-item"><b>Data honesty:</b> OSM records use status “unknown” and a road-segment centre; synthetic records are always labelled and separated.</div>
+    <div class="bottom-item"><b>Traceability:</b> Every incident retains external ID, source URL, publication/collection time, origin, classification method and raw source payload.</div>
+  </div>
+</div>
+</body>
+</html>

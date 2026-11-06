@@ -1,0 +1,30 @@
+# Local PostgreSQL cluster created by scripts/start_db.sh
+.localdb/
+.localdb-run/
+
+# Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.npm-cache/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+backend/.env
+frontend/.env
+!.env.example
+
+# Local screenshots and temp files
+*.log
+.DS_Store
+
+# Local agent state
+.commandcode/

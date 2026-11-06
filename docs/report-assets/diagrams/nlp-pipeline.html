@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #171A1F; }
+  .canvas { width: 1600px; height: 900px; padding: 52px 64px 34px; }
+  .eyebrow { color: #1D4ED8; font-size: 19px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { margin: 9px 0 5px; font-size: 42px; letter-spacing: -.025em; }
+  .subtitle { color: #475467; font-size: 21px; line-height: 1.4; max-width: 1320px; }
+  .pipeline { display: flex; align-items: stretch; gap: 12px; margin-top: 38px; height: 430px; }
+  .step { flex: 1; border: 1.5px solid #D0D5DD; border-radius: 12px; background: #FBFCFD; padding: 17px 15px; }
+  .step.blue { border-color: #B2DDFF; background: #F5F8FF; }
+  .step.dark { border-color: #171A1F; background: #171A1F; color: #fff; }
+  .kicker { color: #1D4ED8; font-size: 14px; letter-spacing: .1em; font-weight: 700; text-transform: uppercase; }
+  .step.dark .kicker { color: #8FB3FF; }
+  h2 { margin: 8px 0 8px; font-size: 25px; line-height: 1.15; }
+  p { color: #475467; font-size: 17px; line-height: 1.4; margin: 0; }
+  .step.dark p { color: #C9D2DE; }
+  .chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid #D0D5DD; background: #fff; border-radius: 999px; padding: 4px 8px; color: #475467; font-size: 13px; }
+  .step.dark .chip { background: #242A32; border-color: #3A424D; color: #D0D5DD; }
+  .arrow { width: 26px; flex: 0 0 26px; display: flex; align-items: center; justify-content: center; color: #98A2B3; font-size: 30px; }
+  .branch { display: flex; gap: 18px; margin-top: 26px; }
+  .branch-card { flex: 1; border: 1px solid #E4E7EC; border-radius: 9px; background: #F8FAFC; padding: 13px 16px; }
+  .branch-card b { display: block; color: #344054; font-size: 17px; margin-bottom: 4px; }
+  .branch-card span { color: #667085; font-size: 15px; line-height: 1.45; }
+  .example { margin-top: 22px; border: 1.5px solid #B2DDFF; border-radius: 10px; background: #F5F8FF; padding: 14px 18px; display: flex; align-items: center; gap: 18px; }
+  .example .label { color: #175CD3; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+  .example p { color: #344054; font-size: 17px; line-height: 1.45; }
+  .example .result { margin-left: auto; border: 1px solid #ABEFC6; background: #ECFDF3; color: #067647; border-radius: 999px; padding: 5px 11px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .foot { margin-top: 19px; border-top: 1px solid #E4E7EC; padding-top: 12px; color: #667085; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="eyebrow">UrbanFlow · Text analytics</div>
+  <h1>Explainable incident classification</h1>
+  <div class="subtitle">A compact, inspectable NLP pipeline combines TF-IDF features and a linear SVM with deterministic keyword guardrails, gazetteer location extraction and extractive summaries.</div>
+
+  <div class="pipeline">
+    <div class="step">
+      <div class="kicker">01 · Input</div>
+      <h2>Traffic text</h2>
+      <p>Title and body from public notices, advisories or mapped construction records.</p>
+      <div class="chips"><span class="chip">HTML fragments</span><span class="chip">dates</span><span class="chip">Mumbai places</span><span class="chip">traffic terms</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step">
+      <div class="kicker">02 · Preprocess</div>
+      <h2>Clean &amp; tokenise</h2>
+      <p>Strip markup, collapse whitespace, tokenise with NLTK and remove English stop words.</p>
+      <div class="chips"><span class="chip">BeautifulSoup</span><span class="chip">regex</span><span class="chip">NLTK</span><span class="chip">stopwords</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step blue">
+      <div class="kicker">03 · Features</div>
+      <h2>TF-IDF</h2>
+      <p>Unigram and bigram features learned from a compact, in-repository labelled notice corpus.</p>
+      <div class="chips"><span class="chip">sublinear tf</span><span class="chip">n-grams</span><span class="chip">scikit-learn</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step dark">
+      <div class="kicker">04 · Classify</div>
+      <h2>SVM + rules</h2>
+      <p>A linear SVM predicts the category; strong, transparent keyword rules guard obvious cases.</p>
+      <div class="chips"><span class="chip">LinearSVC</span><span class="chip">7 categories</span><span class="chip">rule fallback</span><span class="chip">confidence</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="step">
+      <div class="kicker">05 · Output</div>
+      <h2>Structured record</h2>
+      <p>Category, location, summary and classification provenance are stored for inspection.</p>
+      <div class="chips"><span class="chip">category</span><span class="chip">location</span><span class="chip">summary</span><span class="chip">method</span></div>
+    </div>
+  </div>
+
+  <div class="branch">
+    <div class="branch-card"><b>Named location extraction</b><span>Longest-match gazetteer over Mumbai localities and corridors; avoids invented locations and retains approximate precision.</span></div>
+    <div class="branch-card"><b>Extractive summary</b><span>Sentence scoring based on content-word frequency; deterministic and bounded to a short readable summary.</span></div>
+    <div class="branch-card"><b>Transparent categories</b><span>Accident · Road Closure · Construction · Traffic Diversion · Public Event · Parking Restriction · Other.</span></div>
+    <div class="branch-card"><b>Explainability</b><span>Method and confidence are retained with the record; no black-box transformer is required for the core pipeline.</span></div>
+  </div>
+
+  <div class="example">
+    <div class="label">Example</div>
+    <p>“Two-vehicle collision on SV Road near Bandra West; one lane is blocked.”</p>
+    <div class="result">Accident · Bandra West</div>
+  </div>
+  <div class="foot">The classifier is an aid, not a legal determination. Ambiguous notices can be misclassified and remain inspectable through the stored method/confidence metadata.</div>
+</div>
+</body>
+</html>
