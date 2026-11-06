@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
@@ -19,6 +20,14 @@ class Settings(BaseSettings):
     traffic_police_url: str = "https://trafficpolice.maharashtra.gov.in/"
 
     model_config = SettingsConfigDict(env_file=ENV_FILE, extra="ignore")
+
+    @field_validator("database_url")
+    @classmethod
+    def normalize_driver(cls, value: str) -> str:
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg://" + value[len(prefix) :]
+        return value
 
     @property
     def allowed_origins(self) -> list[str]:
